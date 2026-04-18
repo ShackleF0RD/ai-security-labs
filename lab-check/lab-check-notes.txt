@@ -1,0 +1,59 @@
+🚀 PHASE 1 — LOCAL LLM SETUP
+📁 1. Create Lab Structure
+mkdir C:\AI-Security-Lab
+cd C:\AI-Security-Lab
+mkdir projects notes datasets screenshots tools
+📂 2. Create Phase 1 Project
+cd C:\AI-Security-Lab\projects
+mkdir phase1-local-llm
+cd phase1-local-llm
+🐍 3. Create Virtual Environment
+python -m venv .venv
+
+Flags:
+
+-m → run module
+venv → create virtual environment
+⚡ 4. Activate Environment
+.venv\Scripts\Activate.ps1
+⬆️ 5. Upgrade pip
+python -m pip install --upgrade pip
+--upgrade → install latest version
+📦 6. Install Packages
+pip install requests ollama chromadb
+🤖 7. Install + Test Ollama
+ollama
+📥 8. Pull Model
+ollama pull qwen3:4b
+▶️ 9. Run Model
+ollama run qwen3:4b
+🧠 10. Create Test Script
+
+Create file: test_ollama.py
+
+import ollama
+
+response = ollama.chat(
+    model="qwen3:4b",
+    messages=[
+        {"role": "user", "content": "Explain prompt injection."}
+    ]
+)
+
+print(response["message"]["content"])
+
+Run:
+
+python test_ollama.py
+🧾 11. Save Dependencies
+pip freeze > requirements.txt
+> → write output to file
+🚫 12. Create .gitignore
+New-Item .gitignore
+
+Paste:
+
+.venv/
+__pycache__/
+*.pyc
+.env
