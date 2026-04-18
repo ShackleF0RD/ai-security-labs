@@ -1,0 +1,2 @@
+A secure RAG pipeline should limit access to approved documents, log queries, validate sources, 
+and reduce the risk of data leakage or malicious context being retrieved.

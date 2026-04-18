@@ -1,0 +1,2 @@
+Prompt injection happens when an attacker crafts input that tries to override the system’s intended instructions. 
+This can cause an LLM to ignore prior rules and follow malicious directions.

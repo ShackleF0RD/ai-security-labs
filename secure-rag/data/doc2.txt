@@ -1,0 +1,2 @@
+Retrieval-augmented generation, or RAG, improves answers by pulling relevant information from external documents before the model responds. 
+This helps ground the answer in source material.
