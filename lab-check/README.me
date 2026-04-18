@@ -23,5 +23,15 @@ This lab uses a locally hosted LLM to eliminate external API dependencies and al
 - Git
 
 ---
+## Architecture Diagram
 
+```mermaid
+flowchart LR
+    U[User] --> VSC[VS Code Project]
+    VSC --> PY[Python Script: test_ollama.py]
+    PY --> O[Ollama Local Runtime]
+    O --> M[Local LLM: qwen3:4b]
+    PY --> R[Response in Terminal]
+
+    
 ## Project Structure
