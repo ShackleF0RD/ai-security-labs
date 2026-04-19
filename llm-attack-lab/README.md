@@ -43,3 +43,28 @@ flowchart LR
 
     DATA[Local Documents] --> INGEST[ingest.py]
     INGEST --> DB
+
+## Advanced Security Controls (Phase 3 Upgrade)
+
+### Automated Attack Testing
+- Scripted attack execution via `auto_attack.py`
+- Includes prompt injection and jailbreak scenarios
+- Logs all attack attempts and outcomes
+
+### Risk-Based Detection
+- Scoring system for suspicious inputs
+- Combines pattern detection and keyword signals
+- Blocks inputs above risk threshold
+
+### Response Validation Layer
+- Inspects LLM outputs for sensitive content
+- Prevents leakage of system prompts or restricted data
+
+### Multi-Layer Defense Model
+
+1. Input Detection (Prompt Filtering)
+2. Retrieval Filtering (Trusted Sources)
+3. Response Validation (Output Control)
+4. Logging (Full Traceability)
+
+This layered approach significantly improves resilience against common LLM attacks.
