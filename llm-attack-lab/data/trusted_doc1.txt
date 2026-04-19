@@ -1,0 +1,1 @@
+Prompt injection is a security issue where user-controlled input attempts to override the system’s intended instructions and alter model behavior.

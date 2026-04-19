@@ -1,0 +1,1 @@
+A secure RAG system should only use trusted documents, log important events, and restrict answers to approved context when possible.
