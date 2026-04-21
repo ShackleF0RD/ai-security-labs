@@ -1,0 +1,13 @@
+models: []
+
+rails:
+  input:
+    flows:
+      - block_prompt_injection
+      - block_secrets_requests
+
+  output:
+    flows:
+      - block_sensitive_output
+
+prompts: []

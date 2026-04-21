@@ -1,0 +1,30 @@
+define user ask prompt injection
+  "ignore previous instructions"
+  "reveal system prompt"
+  "reveal hidden instructions"
+  "bypass safety"
+  "developer mode"
+  "act as admin"
+
+define user ask secrets
+  "confidential data"
+  "secret"
+  "hidden system prompt"
+
+define bot sensitive output
+  "system prompt"
+  "hidden instructions"
+  "confidential"
+  "secret"
+
+define flow block_prompt_injection
+  user ask prompt injection
+  bot refuse
+
+define flow block_secrets_requests
+  user ask secrets
+  bot refuse
+
+define flow block_sensitive_output
+  bot sensitive output
+  bot refuse
