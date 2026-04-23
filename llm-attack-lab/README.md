@@ -1,20 +1,29 @@
-# Phase 3 – LLM Attack Lab (Prompt Injection & RAG Security)
+# Phase 3 – LLM Attack Lab (Prompt Injection, Guardrails, and Monitoring)
 
 ## Overview
 
-This project builds a local LLM attack and defense lab on top of a Retrieval-Augmented Generation (RAG) system. The goal is to simulate real-world LLM vulnerabilities such as prompt injection, malicious context retrieval, and unsafe outputs, and then implement basic detection and mitigation strategies.
+This project simulates real-world LLM security risks and implements defensive controls in a local environment.
 
-All components run locally using Ollama and Chroma to allow safe, controlled experimentation without external APIs.
+It extends a Retrieval-Augmented Generation (RAG) system by introducing:
+
+- prompt injection attacks
+- automated red-team testing
+- policy-engine guardrails
+- response validation
+- logging and monitoring
+- attack success rate tracking
+
+All components run locally using Ollama and Chroma to allow safe and controlled experimentation.
 
 ---
 
 ## Objectives
 
-- Simulate prompt injection attacks against an LLM system
-- Test how malicious documents influence RAG pipelines
-- Implement basic detection and blocking mechanisms
-- Log model interactions for analysis
-- Establish a foundation for AI red teaming and security engineering
+- Identify and simulate common LLM attack vectors
+- Test how malicious input and documents impact system behavior
+- Implement layered defenses (input, retrieval, output)
+- Measure attack success rate
+- Build a repeatable AI security testing workflow
 
 ---
 
@@ -22,49 +31,27 @@ All components run locally using Ollama and Chroma to allow safe, controlled exp
 
 ```mermaid
 flowchart LR
-    U[User Input] --> DET[Prompt Injection Detector]
-    DET -->|Clean| APP[Query Handler]
-    DET -->|Blocked| BLOCK[Reject Request]
+    U[User Input] --> GR[Guardrails Engine]
 
-    APP --> EMB[Embedding Model: nomic-embed-text]
-    EMB --> DB[Chroma Vector Database]
+    GR -->|Blocked| B[Reject Request]
+    GR -->|Allowed| Q[Query Pipeline]
 
-    DB --> RET[Retrieved Context Chunks]
-    RET --> FILTER[Trust Filter]
+    Q --> EMB[Embedding Model]
+    EMB --> DB[Chroma Vector DB]
 
-    FILTER -->|Trusted Only| PROMPT[Prompt Builder]
-    FILTER -->|Malicious Removed| PROMPT
+    DB --> RET[Retrieved Documents]
+    RET --> TF[Trust Filter]
 
-    PROMPT --> LLM[Ollama Local LLM: qwen3:4b]
-    LLM --> RESP[Response]
+    TF --> PROMPT[Secure Prompt Builder]
+    PROMPT --> LLM[Ollama Local LLM]
 
-    RESP --> LOG[Event Logger]
-    LOG --> OUTPUT[User Output]
+    LLM --> OUT[Response]
+    OUT --> ORG[Output Guardrails]
+
+    ORG -->|Blocked| RB[Reject Response]
+    ORG -->|Allowed| LOG[Logger]
+
+    LOG --> DASH[Dashboard]
 
     DATA[Local Documents] --> INGEST[ingest.py]
     INGEST --> DB
-
-## Advanced Security Controls (Phase 3 Upgrade)
-
-### Automated Attack Testing
-- Scripted attack execution via `auto_attack.py`
-- Includes prompt injection and jailbreak scenarios
-- Logs all attack attempts and outcomes
-
-### Risk-Based Detection
-- Scoring system for suspicious inputs
-- Combines pattern detection and keyword signals
-- Blocks inputs above risk threshold
-
-### Response Validation Layer
-- Inspects LLM outputs for sensitive content
-- Prevents leakage of system prompts or restricted data
-
-### Multi-Layer Defense Model
-
-1. Input Detection (Prompt Filtering)
-2. Retrieval Filtering (Trusted Sources)
-3. Response Validation (Output Control)
-4. Logging (Full Traceability)
-
-This layered approach significantly improves resilience against common LLM attacks.
