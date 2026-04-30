@@ -1,3 +1,4 @@
+import ast
 import json
 from pathlib import Path
 
@@ -12,27 +13,33 @@ st.title("AI Security Lab - Attack Success Rate Dashboard")
 
 def load_jsonl(path: Path):
     rows = []
+
     if not path.exists():
         return rows
 
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
+
             if not line:
                 continue
+
             try:
                 rows.append(json.loads(line))
             except json.JSONDecodeError:
                 pass
+
     return rows
 
 
 def load_events():
     events = load_jsonl(LOG_FILE)
+
     if not events:
         return pd.DataFrame()
 
     flat_rows = []
+
     for event in events:
         row = {
             "timestamp": event.get("timestamp"),
@@ -88,6 +95,50 @@ def classify_auto_tests(df: pd.DataFrame):
     }
 
 
+def parse_list(value):
+    try:
+        parsed = ast.literal_eval(value)
+        if isinstance(parsed, list):
+            return parsed
+        return []
+    except Exception:
+        return []
+
+
+def build_weighted_retrieval_table(df: pd.DataFrame):
+    if df.empty:
+        return pd.DataFrame()
+
+    weighted_df = df[df["event_type"] == "weighted_retrieval_result"].copy()
+
+    if weighted_df.empty or "selected_chunks" not in weighted_df.columns:
+        return pd.DataFrame()
+
+    rows = []
+
+    for _, row in weighted_df.iterrows():
+        question = row.get("question", "")
+        selected_chunks = parse_list(row.get("selected_chunks", "[]"))
+
+        for chunk in selected_chunks:
+            if not isinstance(chunk, dict):
+                continue
+
+            rows.append(
+                {
+                    "timestamp": row.get("timestamp"),
+                    "question": question,
+                    "source": chunk.get("source"),
+                    "chunk": chunk.get("chunk"),
+                    "trust_score": chunk.get("trust_score"),
+                    "relevance_score": chunk.get("relevance_score"),
+                    "final_score": chunk.get("final_score"),
+                }
+            )
+
+    return pd.DataFrame(rows)
+
+
 df = load_events()
 metrics = classify_auto_tests(df)
 
@@ -103,6 +154,7 @@ col6.metric("Benign Answered", metrics["answered_benign"])
 col7.metric("Benign Blocked", metrics["blocked_benign"])
 
 st.subheader("Attack Results Overview")
+
 chart_df = pd.DataFrame(
     {
         "Category": ["Blocked Attacks", "Allowed Attacks", "Benign Answered", "Benign Blocked"],
@@ -114,9 +166,47 @@ chart_df = pd.DataFrame(
         ],
     }
 )
+
 st.bar_chart(chart_df.set_index("Category"))
 
+st.subheader("Weighted Retrieval Results")
+
+weighted_table = build_weighted_retrieval_table(df)
+
+if weighted_table.empty:
+    st.info("No weighted retrieval results found yet. Run query.py or auto_attack.py after updating weighted retrieval.")
+else:
+    st.dataframe(weighted_table.tail(20), use_container_width=True)
+
+    score_chart = weighted_table[["source", "trust_score", "relevance_score", "final_score"]].copy()
+    score_chart["trust_score"] = pd.to_numeric(score_chart["trust_score"], errors="coerce")
+    score_chart["relevance_score"] = pd.to_numeric(score_chart["relevance_score"], errors="coerce")
+    score_chart["final_score"] = pd.to_numeric(score_chart["final_score"], errors="coerce")
+
+    st.subheader("Weighted Retrieval Score Comparison")
+    st.bar_chart(score_chart.tail(10).set_index("source")[["trust_score", "relevance_score", "final_score"]])
+
+st.subheader("Recent Semantic Detection Events")
+
+if df.empty:
+    st.info("No semantic events found yet.")
+else:
+    semantic_cols = [
+        col for col in [
+            "event_type",
+            "question",
+            "input",
+            "detection"
+        ] if col in df.columns
+    ]
+
+    if semantic_cols:
+        st.dataframe(df[semantic_cols].tail(15), use_container_width=True)
+    else:
+        st.info("No semantic detection columns found yet.")
+
 st.subheader("Recent Logged Events")
+
 if df.empty:
     st.info("No events found yet. Run auto_attack.py first.")
 else:
